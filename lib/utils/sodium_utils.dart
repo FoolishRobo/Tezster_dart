@@ -42,4 +42,9 @@ class SodiumUtils {
   static Uint8List sign(Uint8List simpleHash, Uint8List key) {
     return Sodium.cryptoSignDetached(simpleHash, key);
   }
+
+  static KeyPair publicKey(Uint8List sk) {
+    var seed = Sodium.cryptoSignEd25519SkToSeed(sk);
+    return Sodium.cryptoSignSeedKeypair(seed);
+  }
 }

@@ -76,6 +76,39 @@ class TezosMessageUtils {
     }
   }
 
+  static String readPublicKey(String hex, Uint8List b) {
+    if (hex.length != 66 && hex.length != 68) {
+      throw new Exception("Incorrect hex length, ${hex.length} to parse a key");
+    }
+    var hint = hex.substring(0, 2);
+    if (hint == "00") {
+      return GenerateKeys.readKeysWithHint(b, '0d0f25d9');
+    } else if (hint == "01" && hex.length == 68) {
+      return GenerateKeys.readKeysWithHint(b, '03fee256');
+    } else if (hint == "02" && hex.length == 68) {
+      return GenerateKeys.readKeysWithHint(b, '03b28b7f');
+    } else {
+      throw new Exception('Unrecognized key type');
+    }
+  }
+
+  static dynamic readKeyWithHint(Uint8List b, String hint) {
+    if (hint == 'edsk') {
+      return GenerateKeys.readKeysWithHint(b, '2bf64e07');
+    } else if (hint == 'edpk') {
+      return readPublicKey(
+          "00${hex.encode(String.fromCharCodes(b).codeUnits)}", b);
+    } else if (hint == 'sppk') {
+      return readPublicKey(
+          "01${hex.encode(String.fromCharCodes(b).codeUnits)}", b);
+    } else if (hint == 'p2pk') {
+      return readPublicKey(
+          "02${hex.encode(String.fromCharCodes(b).codeUnits)}", b);
+    } else {
+      throw new Exception("Unrecognized key hint, $hint");
+    }
+  }
+
   static Uint8List simpleHash(Uint8List message, int size) {
     return Uint8List.fromList(Blake2bHash.hashWithDigestSize(256, message));
   }
